@@ -259,8 +259,20 @@ class MetricsBase(EventDispatcher):
         elif platform == 'ios':
             import ios
             value = ios.get_scale()
-        elif platform in ('macosx', 'win'):
+        elif platform  == 'macosx':
             value = self.dpi / 96.
+        elif platform  == 'win':
+            from win32api import GetSystemMetrics
+            from ctypes import windll
+            
+            w0 = GetSystemMetrics(0)
+            h0 = GetSystemMetrics(1)
+            windll.user32.SetProcessDPIAware()
+            w1 = GetSystemMetrics(0)
+            h1 = GetSystemMetrics(1)
+            sf_w = w1 / w0
+            sf_h = h1 / h0
+            value =  min(sf_w, sf_h) 
 
         sync_pixel_scale(density=value)
         return value
